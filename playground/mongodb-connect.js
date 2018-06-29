@@ -5,7 +5,7 @@ const {
   ObjectID
 } = require('mongodb');
 
-const mongoURL = 'mongodb://10.2.2.102:27017/TodoApp'
+const mongoURL = 'mongodb://10.2.2.102:27017/TodoApp';
 
 //mongo v3 gets client instead of db
 MongoClient.connect(mongoURL, (err, db) => {

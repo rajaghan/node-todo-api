@@ -14,7 +14,7 @@ MongoClient.connect(mongoURL, (err, db) => {
   }
   console.log('Connected to mongodb server');
 
-  //findOneAndUpdate(filter, update, options)
+  //findOneAndUpdate(filter, update operators, options)
   db.collection('Users').findOneAndUpdate({
     state: 'karnataka'
   }, {
