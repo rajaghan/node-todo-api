@@ -5,6 +5,8 @@ var {
 var express = require('express');
 var bodyPraser = require('body-parser');
 
+var port = process.env.PORT || 3000;
+
 var {
   mognoose
 } = require('./db/mongoose');
@@ -57,8 +59,26 @@ app.get('/todos/:id', (req, res) => {
   }).catch(err => res.status(400).send());
 });
 
-app.listen(3000, () => {
-  console.log('server started on port 3000');
+app.delete('/todos/:id', (req, res) => {
+  var id = req.params.id;
+
+  if (!ObjectID.isValid(id)) {
+    res.status(404).send('Resource not found');
+  }
+
+  Todo.findByIdAndRemove(id).then((todo) => {
+    if (!todo) {
+      res.status(404).send('Resource not found');
+    }
+
+    res.status(200).send({
+      todo
+    });
+  }).catch(err => res.status(400).send());
+});
+
+app.listen(port, () => {
+  console.log(`server started on port ${port}`);
 });
 
 module.exports = {
