@@ -8,10 +8,18 @@ var {
   Todo
 } = require('./../models/todo');
 
+var todos = [{
+  text: 'This is first text'
+}, {
+  text: 'This is second text'
+}];
+
 beforeEach((done) => {
   Todo.remove({}).then(() => {
-    done();
-  })
+    Todo.insertMany(todos).then(() => {
+      done();
+    });
+  });
 });
 
 describe('POST /todos', () => {
@@ -30,7 +38,9 @@ describe('POST /todos', () => {
         if (err) {
           return done(err);
         }
-        Todo.find().then((todos) => {
+        Todo.find({
+          text
+        }).then((todos) => {
           expect(todos.length).toBe(1);
           expect(todos[0].text).toBe(text);
           done();
@@ -48,10 +58,21 @@ describe('POST /todos', () => {
           return done(err);
         }
         Todo.find().then((todos) => {
-          expect(todos.length).toBe(0);
+          expect(todos.length).toBe(2);
           done();
         }).catch(err => done(err));
       });
   });
+});
 
+describe('GET /todos', () => {
+  it('should get all notes from database', (done) => {
+    request(app)
+      .get('/todos')
+      .expect(200)
+      .expect((res) => {
+        expect(res.body.todos.length).toBe(2);
+      })
+      .end(done);
+  });
 });
