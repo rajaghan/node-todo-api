@@ -12,21 +12,15 @@ var {
   Todo
 } = require('./../models/todo');
 
-var todos = [{
-  _id: new ObjectID(),
-  text: 'This is first text'
-}, {
-  _id: new ObjectID(),
-  text: 'This is second text'
-}];
+const {
+  todos,
+  populateTodos,
+  users,
+  populateUsers
+} = require('./seed/seed');
 
-beforeEach((done) => {
-  Todo.remove({}).then(() => {
-    Todo.insertMany(todos).then(() => {
-      done();
-    });
-  });
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 describe('POST /todos', () => {
   it('should create a new todo', (done) => {
