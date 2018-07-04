@@ -54,4 +54,19 @@ describe('POST /todos', () => {
       });
   });
 
+  it('should get all todos from database', (done) => {
+    request(app)
+      .get('/todos')
+      .expect(200)
+      .end((err, res) => {
+        if (err) {
+          return done(err);
+        }
+        Todo.find().then((docs) => {
+          expect(docs.length).toBe(0);
+          done();
+        }).catch(err => done(err));
+      });
+  });
+
 });
