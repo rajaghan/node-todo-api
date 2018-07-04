@@ -1,5 +1,9 @@
 require('./config/config');
 
+var {
+  ObjectID
+} = require('mongodb');
+
 var express = require('express');
 var bodyPraser = require('body-parser');
 var _ = require('lodash');
@@ -36,9 +40,47 @@ app.post('/todos', (req, res) => {
 });
 
 app.get('/todos', (req, res) => {
-  Todo.find().then((docs) => {
-    res.send(JSON.stringify(docs, undefined, 2));
-  }).catch(err => res.status(404).send(err));
+  Todo.find().then((todos) => {
+    res.send({
+      todos
+    });
+  }).catch(err => res.status(400).send(err));
+});
+
+app.get('/todos/:id', (req, res) => {
+  var id = req.params.id;
+
+  if (!ObjectID.isValid(id)) {
+    res.status(404).send('Resource not found');
+  }
+
+  Todo.findById(id).then((todo) => {
+    if (!todo) {
+      res.status(404).send('Resource not found');
+    }
+
+    res.status(200).send({
+      todo
+    });
+  }).catch(err => res.status(400).send());
+});
+
+app.delete('/todos/:id', (req, res) => {
+  var id = req.params.id;
+
+  if (!ObjectID.isValid(id)) {
+    res.status(404).send('Resource not found');
+  }
+
+  Todo.findByIdAndRemove(id).then((todo) => {
+    if (!todo) {
+      res.status(404).send('Resource not found');
+    }
+
+    res.status(200).send({
+      todo
+    });
+  }).catch(err => res.status(400).send());
 });
 
 app.post('/users', (req, res) => {
