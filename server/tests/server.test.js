@@ -11,6 +11,9 @@ var {
 var {
   Todo
 } = require('./../models/todo');
+var {
+  User
+} = require('./../models/user');
 
 const {
   todos,
@@ -102,6 +105,84 @@ describe('GET /todos/:id', () => {
       .expect((res) => {
         expect(res.body.todo.text).toBe(todos[0].text);
       })
+      .end(done);
+  });
+});
+
+describe('GET /users/me', () => {
+  it('should return if authenticated', (done) => {
+    request(app)
+      .get('/users/me')
+      .set('x-auth', users[0].tokens[0].token)
+      .expect(200)
+      .expect((res) => {
+        expect(res.body._id).toBe(users[0]._id.toHexString());
+        expect(res.body.email).toBe(users[0].email);
+      })
+      .end(done);
+  });
+
+  it('should return 401 if not authenticated', (done) => {
+    request(app)
+      .get('/users/me')
+      .expect(401)
+      .expect((res) => {
+        expect(res.body).toEqual({});
+      })
+      .end(done);
+  });
+});
+
+describe('POST /users', () => {
+  it('should create a user', (done) => {
+    var email = 'example@example.com';
+    var password = '123mnb!';
+
+    request(app)
+      .post('/users')
+      .send({
+        email,
+        password
+      })
+      .expect(200)
+      .expect((res) => {
+        expect(res.headers['x-auth']).toExist();
+        expect(res.body._id).toExist();
+        expect(res.body.email).toBe(email);
+      })
+      .end((err) => {
+        if (err) {
+          return done();
+        }
+        User.findOne({
+          email
+        }).then((user) => {
+          expect(user).toExist();
+          expect(user.password).toNotBe(password);
+          done();
+        });
+      });
+  });
+
+  it('should return validation errors if request is invalid', (done) => {
+    request(app)
+      .post('/users')
+      .send({
+        email: 'r.com',
+        password: 'abc'
+      })
+      .expect(400)
+      .end(done);
+  });
+
+  it('should not create user if email is in use', (done) => {
+    request(app)
+      .post('/users')
+      .send({
+        email: 'raj@example.com',
+        password: 'abc123!'
+      })
+      .expect(400)
       .end(done);
   });
 });
