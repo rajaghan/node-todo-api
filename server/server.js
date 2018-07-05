@@ -7,6 +7,7 @@ var {
 var express = require('express');
 var bodyPraser = require('body-parser');
 var _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 var {
   mongoose
@@ -99,6 +100,15 @@ app.post('/users', (req, res) => {
 //private route
 app.get('/users/me', authenticate, (req, res) => {
   res.send(req.user);
+});
+
+app.post('/users/login', (req, res) => {
+  var body = _.pick(req.body, ['email', 'password']);
+  User.findByCredentials(body.email, body.password).then((user) => {
+    return user.generateAuthToken().then((token) => {
+      res.header('x-auth', token).send(user);
+    });
+  }).catch((e) => res.status(400).send());
 });
 
 app.listen(port, () => {
