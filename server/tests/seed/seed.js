@@ -29,7 +29,14 @@ const users = [{
 }, {
   _id: userTwoId,
   email: 'ghanta@example.com',
-  password: 'userTwoPass'
+  password: 'userTwoPass',
+  tokens: [{
+    access: 'auth',
+    token: jwt.sign({
+      _id: userTwoId,
+      access: 'auth'
+    }, 'abc123').toString()
+  }]
 }];
 
 const populateUsers = (done) => {
@@ -43,10 +50,12 @@ const populateUsers = (done) => {
 
 const todos = [{
   _id: new ObjectID(),
-  text: 'This is first text'
+  text: 'This is first text',
+  _creator: userOneId
 }, {
   _id: new ObjectID(),
-  text: 'This is second text'
+  text: 'This is second text',
+  _creator: userTwoId
 }];
 
 const populateTodos = (done) => {
